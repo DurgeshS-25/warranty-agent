@@ -16,3 +16,4 @@ venv/
 
 # OS noise
 .DS_Store
+scan_output.txt

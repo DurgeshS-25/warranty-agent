@@ -5,4 +5,11 @@ google-auth-httplib2>=0.2
 google-api-python-client>=2.130
 python-dotenv>=1.0
 
-# Stage 2+ will add: pydantic, beautifulsoup4, strands-agents
+# Stage 2: HTML stripping before anything reaches the model
+beautifulsoup4>=4.12
+lxml>=5.2
+
+# Stage 2: structured extraction schema
+pydantic>=2.7
+
+# Stage 2+ will add: strands-agents
