@@ -1,0 +1,18 @@
+# Secrets — never commit these
+.env
+credentials.json
+token.json
+*.pem
+
+# Cached receipt data (used for cheap prompt iteration — see docs/stage1_setup.md)
+cache/*.json
+!cache/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS noise
+.DS_Store

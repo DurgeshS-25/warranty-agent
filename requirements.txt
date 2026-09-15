@@ -1,0 +1,8 @@
+# Stage 1 — just enough to verify credentials work
+boto3>=1.34
+google-auth-oauthlib>=1.2
+google-auth-httplib2>=0.2
+google-api-python-client>=2.130
+python-dotenv>=1.0
+
+# Stage 2+ will add: pydantic, beautifulsoup4, strands-agents
