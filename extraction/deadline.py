@@ -1,17 +1,15 @@
 """
 Deadline computation.
 
-Deliberately NOT a model call for the common cases. Priority order:
-  1. stated_in_email  — the email itself said a deadline; trust it verbatim.
-  2. policy_table      — merchant is one of our hand-verified 5; use it.
-  3. model_estimate    — merchant unknown to the policy table; ask the
-                          model to estimate, clearly labeled as a guess.
-
-This function only handles the first two, deterministically, with zero
-model cost. The model_estimate path is a separate function (Stage 2
-step 3, not yet built) that gets called only when this returns "unknown"
-— which should be rare given the policy table now covers every merchant
-that showed up meaningfully in a real 12-month inbox scan.
+Priority order:
+  1. stated_in_email  — the email itself stated an explicit deadline/day
+                          count; trust it verbatim. NOTE: text merely
+                          mentioning "return policy" without a specific
+                          number of days does NOT count — that's
+                          boilerplate, not a stated deadline, and should
+                          fall through to the policy table instead.
+  2. policy_table      — merchant is one of our hand-verified entries.
+  3. model_estimate    — merchant unknown to the policy table.
 """
 
 from datetime import timedelta
@@ -28,16 +26,20 @@ def compute_deadline(receipt: ExtractedReceipt, sender_email: str) -> DeadlineRe
             source_detail=f"Not a valid receipt: {receipt.invalid_reason}",
         )
 
-    # Priority 1: the email stated its own deadline. Trust it, but only
-    # if extraction also gave us an order_date to anchor against — a
-    # stated window with no date to compute from isn't usable yet. (This
-    # path is a stub: real implementation needs a second, small model
-    # call to parse the stated text into an actual number of days, or a
-    # direct date. None of the 4 verified merchants' real emails stated
-    # a deadline directly, so this is untested against real data so far.)
-    if receipt.stated_return_window_text and receipt.order_date:
+    # Priority 1: only take this path if we can actually compute a real
+    # deadline from the stated text. Parsing arbitrary stated text into a
+    # date isn't implemented yet — no real cached email has needed it so
+    # far (every "stated_return_window_text" seen has been generic policy
+    # boilerplate with no explicit day count, e.g. New Balance's return
+    # instructions, which mention no number of days at all). So this
+    # branch is intentionally inert for now rather than dead-ending the
+    # whole computation — it must fall through to policy_table below,
+    # not return early with an unusable None deadline.
+    stated_deadline = None  # TODO: implement text->date parsing when a
+                             # real example actually needs it
+    if stated_deadline:
         return DeadlineResult(
-            return_deadline=None,  # TODO: parse stated_return_window_text
+            return_deadline=stated_deadline,
             source="stated_in_email",
             source_detail=receipt.stated_return_window_text,
         )
@@ -57,8 +59,7 @@ def compute_deadline(receipt: ExtractedReceipt, sender_email: str) -> DeadlineRe
             window_days=policy.return_window_days,
         )
 
-    # Priority 3: no policy match and no stated deadline — this is where
-    # a model_estimate call belongs. Not implemented yet (Stage 2 step 3).
+    # Priority 3: no policy match and no stated deadline.
     return DeadlineResult(
         return_deadline=None,
         source="unknown",

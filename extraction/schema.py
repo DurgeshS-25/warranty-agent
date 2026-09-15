@@ -64,7 +64,7 @@ class ExtractedReceipt(BaseModel):
     order_date: date | None = None
     items: list[LineItem] = Field(default_factory=list)
     total_amount: float | None = None
-    currency: str = "USD"
+    currency: str | None = "USD"
 
     stated_return_window_text: str | None = Field(
         default=None,
