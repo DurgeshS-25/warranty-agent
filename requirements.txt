@@ -13,3 +13,4 @@ lxml>=5.2
 pydantic>=2.7
 
 # Stage 2+ will add: strands-agents
+strands-agents
