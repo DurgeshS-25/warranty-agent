@@ -43,6 +43,11 @@ Rules:
   THIS order (price $0 or "FREE", explicitly tied to the paid item, e.g.
   "Gift with the purchase of: [item]") DOES belong in items — that's a real
   part of the order, unlike a cross-sell recommendation.
+- Do NOT list fees, taxes, shipping, discounts, bag fees, or totals as items.
+  Only list physical or digital products the customer actually bought.
+- is_valid_receipt is also false for credit memos, refunds, trade-in or
+  trade-up credits, and invoices with a zero amount due. These record money
+  going back to the customer, not a purchase.
 - If total_amount is stated and your extracted items' prices don't roughly
   sum to it, mention this discrepancy in extraction_notes rather than
   silently including items that don't belong.

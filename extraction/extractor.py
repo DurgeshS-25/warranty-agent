@@ -87,8 +87,12 @@ def extract_receipt(
             # own date rather than trusting it blindly.
             try:
                 model_date = date.fromisoformat(parsed["order_date"])
-                drift = abs((model_date - email_date).days)
-                if drift > IMPLAUSIBLE_DATE_DRIFT_DAYS:
+                signed = (model_date - email_date).days
+                drift = abs(signed)
+                # An order can't be placed AFTER the email confirming it
+                # (1 day tolerance for timezones). Catches DD.MM / MM.DD swaps
+                # that the 60-day drift check alone misses.
+                if signed > 1 or drift > IMPLAUSIBLE_DATE_DRIFT_DAYS:
                     note = (
                         f"order_date overridden: model extracted "
                         f"{model_date.isoformat()}, which is {drift} days "
